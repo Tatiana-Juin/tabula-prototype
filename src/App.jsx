@@ -47,7 +47,11 @@ function App() {
               id:Math.random().toString(36),
               name:file.name,
               columns:colObjects,
-              rows:results.data
+              rows:results.data,
+              // Pour le graphique 
+              showChartConfig:false,
+              selectedX:"",
+              selectedY:""
             } 
             // spread operator pour ajouter le nouveau fichier et ne pas ecraser les autre fichier 
             setFilesList((prev) => [...prev,newFileEntry]);
@@ -78,6 +82,18 @@ function App() {
         }
         return file;
       })
+    )
+  }
+
+  // FONCTION POUR CHANGER LA VALEUR DE SHOWCHARTCONFIG AFIN DE POURVOIR CREER LES GRAPHIQUE 
+  const toggleChartConfig = (fileId)=>{
+    // on récupere pour etre sur que c'est le bon fichier 
+    setFilesList(prevList=>
+      prevList.map(file =>
+        file.id === fileId 
+        ?{...file,showChartConfig: !file.showChartConfig}
+        : file
+      )
     )
   }
 
@@ -149,7 +165,35 @@ function App() {
                   </label>
                 ))}
             </div>
-            <button>Créer unn graphique </button>
+
+
+            {/* ENDROIT POUR LE GRAPHIQUE  */}
+            <button onClick={()=> toggleChartConfig(fileObj.id)}> 
+              {fileObj.showChartConfig ? "❌ Fermer les réglages" : "📊 Créer un graphique"}
+            </button>
+
+            
+            {fileObj.showChartConfig &&(
+              <div style={{ marginTop: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '8px' }}>
+                  {/* BLOC POUR AXE X  */}
+                  <div>
+                      <label> X</label>
+                      <select >
+                          <option value="">Choisir ---</option>
+                          {fileObj.columns.map((col, i) => <option key={i}>{col.name}</option>)}
+                      </select>
+                  </div>
+
+                {/* BLOC POUR AXE Y  */}
+                  <div style={{ marginTop: '10px' }}>
+                      <label>Axe Y : </label>
+                      <select>
+                        <option value="">-- Choisir --</option>
+                        {fileObj.columns.map((col, i) => <option key={i}>{col.name}</option>)}
+                      </select>
+                  </div>
+              </div>
+            )}
 
             <div style={{ overflowX: 'auto' }} >
                 <table border="1" style={{ borderCollapse: 'collapse', width: '100%' }}>
