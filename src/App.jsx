@@ -97,6 +97,17 @@ function App() {
     )
   }
 
+  
+
+  // POUR VIDER LA PAGE 
+  const clearAllFiles = () => {
+    setFilesList([]); 
+    if (fileInputRef.current) {
+      // vide input le texte a coter 
+      fileInputRef.current.value = ""; 
+    }
+  };
+
   // Pour mettre a jours les axeX et Y => pour recuperer la valeur 
   const updateAxis = (fileId,axisName,newValue) =>{
     setFilesList(prevList =>
@@ -118,15 +129,6 @@ function App() {
       })
     )
   }
-
-  // POUR VIDER LA PAGE 
-  const clearAllFiles = () => {
-    setFilesList([]); 
-    if (fileInputRef.current) {
-      // vide input le texte a coter 
-      fileInputRef.current.value = ""; 
-    }
-  };
 
 
   return (
@@ -200,22 +202,31 @@ function App() {
                   {/* BLOC POUR AXE X  */}
                   <div>
                       <label> X</label>
-                      <select >
+                      <select  onChange={(e) => updateAxis(fileObj.id,"selectedX",e.target.value)}>
                           <option value="">Choisir ---</option>
-                          {fileObj.columns.map((col, i) => <option key={i}>{col.name}</option>)}
+                          {fileObj.columns.map((col, i) => 
+                            <option key={i} value={col.name}>
+                              {col.name}
+                            </option>
+                          )}
                       </select>
                   </div>
 
                 {/* BLOC POUR AXE Y  */}
                   <div style={{ marginTop: '10px' }}>
                       <label>Axe Y : </label>
-                      <select>
+                      
+                      <select onChange={(e)=> updateAxis(fileObj.id,"selectedY",e.target.value)}>
                         <option value="">-- Choisir --</option>
-                        {fileObj.columns.map((col, i) => <option key={i}>{col.name}</option>)}
+                        {fileObj.columns.map((col, i) => 
+                          <option key={i} value={col.name}>
+                            {col.name}
+                          </option>
+                        )}
                       </select>
                   </div>
 
-                  <button>Créer</button>
+                  {/* <button>Créer</button> */}
               </div>
             )}
 
