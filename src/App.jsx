@@ -97,6 +97,28 @@ function App() {
     )
   }
 
+  // Pour mettre a jours les axeX et Y => pour recuperer la valeur 
+  const updateAxis = (fileId,axisName,newValue) =>{
+    setFilesList(prevList =>
+      prevList.map(file =>{
+        if(file.id === fileId){
+          return {
+            ...file,
+            /*
+            [axisName ] => entre crochet recupere la valeur 
+            utilise cléf dynamique 
+              Si axisName vaut "selectedX", l'objet devient { ...file, selectedX: newValue }.
+
+              Si axisName vaut "selectedY", l'objet devient { ...file, selectedY: newValue }.
+            */
+            [axisName]:newValue
+          }
+        }
+        return file;
+      })
+    )
+  }
+
   // POUR VIDER LA PAGE 
   const clearAllFiles = () => {
     setFilesList([]); 
@@ -192,6 +214,8 @@ function App() {
                         {fileObj.columns.map((col, i) => <option key={i}>{col.name}</option>)}
                       </select>
                   </div>
+
+                  <button>Créer</button>
               </div>
             )}
 
