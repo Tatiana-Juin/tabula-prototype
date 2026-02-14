@@ -1,8 +1,30 @@
 // import { useState } from 'react';
 import Papa from 'papaparse';
-import { useState, useRef } from 'react'; // On ajoute useRef ici
+import { useState, useRef } from 'react'; 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar, Line } from 'react-chartjs-2';
 import './App.css'
-
+// On enregistre les composants pour les utiliser on fait cela pour que ca soit plus leger et on utilise que ce que l'on a besoin 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 function App() {
   // tableau qui contient les données de chaque files 
 
@@ -167,102 +189,119 @@ function App() {
 
         )}
     {/* BOUCLE SUR CHAQUE FICHIER CHARGER - fileObj => un fichier csv  */}
-        {filesList.map((fileObj) =>(
+        {filesList.map((fileObj) => {
+          // --- LOGIQUE DE CALCUL (AVANT LE RETURN) POUR QUE Y soit UN NB ---
+          const validRows = fileObj.rows.filter(row => {
+            const valY = row[fileObj.selectedY];
+            return valY !== undefined && valY.trim() !== "" && !isNaN(parseFloat(valY));
+          });
+          // CREATION DE DEUX CONSTANTE UNE POUR LES LABEL UNE POUR LES VALEURS 
+          const chartLabels = validRows.map(row => row[fileObj.selectedX]);
+          const chartValues = validRows.map(row => parseFloat(row[fileObj.selectedY]));
+          // Pour dessiner le graphique 
+          const data = {
+            // Pour la legende ce que l'on va voir en haut 
+            labels: chartLabels,
+            // contient 1 ou plusieurs Objet  - chaque objet represente une serie de données par exemple une barre sur un graphqiue 
+            datasets: [
+              {
+                label: fileObj.selectedY, 
+                data: chartValues,      
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                borderColor: 'rgb(75, 192, 192)',
+              },
+            ],
+          };
 
-          <div key={fileObj.id} style={{ marginTop: '40px', borderTop: '2px solid #eee' }}>
-            {/* nom du fichier  */}
-            <h2 style={{color:"#333"}}>Fichier : {fileObj.name}</h2>
-            
+          return (
+            <div key={fileObj.id} style={{ marginTop: '40px', borderTop: '2px solid #eee' }}>
+              <h2 style={{ color: "#333" }}>Fichier : {fileObj.name}</h2>
 
-            <div style={{marginBottom:'10px'}}>
-                <strong>Filtrer les colonnes</strong>
-                {/* pour recuperer le nom de chaque colonnes  */}
-                {fileObj.columns.map((col,index) =>(
-                  <label key={index} style={{marginLeft: '10px'}}>
-                    {/* onChange => C'est le declencheur => quand on clique sur la case a cocheer celui ci appelle la fonction toggleColumn on lui envoie id du fichier et le nom de la colonne laf ocntion va mettre a jours la visibilité (visible) et on va mettre a  jours l'affichage  */}
-                      <input 
-                        type="checkbox"
-                        checked={col.visible}
-                        onChange={() => toggleColumn(fileObj.id,col.name)} 
-                      />
-                      {col.name}
+              <div style={{ marginBottom: '10px' }}>
+                {/* POUR LES FILTRE  */}
+                <strong>Filtrer les colonnes :</strong>
+                {fileObj.columns.map((col, index) => (
+                  <label key={index} style={{ marginLeft: '10px' }}>
+                    <input
+                      type="checkbox"
+                      checked={col.visible}
+                      onChange={() => toggleColumn(fileObj.id, col.name)}
+                    />
+                    {col.name}
                   </label>
                 ))}
-            </div>
-
-
-            {/* ENDROIT POUR LE GRAPHIQUE  */}
-            <button onClick={()=> toggleChartConfig(fileObj.id)}> 
-              {fileObj.showChartConfig ? "❌ Fermer les réglages" : "📊 Créer un graphique"}
-            </button>
-
-            
-            {fileObj.showChartConfig &&(
-              <div style={{ marginTop: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '8px' }}>
-                  {/* BLOC POUR AXE X  */}
-                  <div>
-                      <label> X</label>
-                      <select  onChange={(e) => updateAxis(fileObj.id,"selectedX",e.target.value)}>
-                          <option value="">Choisir ---</option>
-                          {fileObj.columns.map((col, i) => 
-                            <option key={i} value={col.name}>
-                              {col.name}
-                            </option>
-                          )}
-                      </select>
-                  </div>
-
-                {/* BLOC POUR AXE Y  */}
-                  <div style={{ marginTop: '10px' }}>
-                      <label>Axe Y : </label>
-                      
-                      <select onChange={(e)=> updateAxis(fileObj.id,"selectedY",e.target.value)}>
-                        <option value="">-- Choisir --</option>
-                        {fileObj.columns.map((col, i) => 
-                          <option key={i} value={col.name}>
-                            {col.name}
-                          </option>
-                        )}
-                      </select>
-                  </div>
-
-                  {/* <button>Créer</button> */}
               </div>
-            )}
 
-            <div style={{ overflowX: 'auto' }} >
+              <button onClick={() => toggleChartConfig(fileObj.id)}>
+                {fileObj.showChartConfig ? "❌ Fermer les réglages" : "📊 Créer un graphique"}
+              </button>
+
+              {fileObj.showChartConfig && (
+                <div style={{ marginTop: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '8px' }}>
+
+                  <p style={{ color: 'green' }}>✅ {chartValues.length} données valides détectées.</p>
+                  {/* CHOISI LA DONNE X  */}
+                  <div>
+                    <label>Axe X : </label>
+                    <select value={fileObj.selectedX} onChange={(e) => updateAxis(fileObj.id, "selectedX", e.target.value)}>
+                      <option value="">Choisir ---</option>
+                      {fileObj.columns.map((col, i) => <option key={i} value={col.name}>{col.name}</option>)}
+                    </select>
+                  </div>
+
+                  {/* CHOISI Y  */}
+                  <div style={{ marginTop: '10px' }}>
+                    <label>Axe Y : </label>
+                    <select value={fileObj.selectedY} onChange={(e) => updateAxis(fileObj.id, "selectedY", e.target.value)}>
+                      <option value="">-- Choisir --</option>
+                      {fileObj.columns.map((col, i) => <option key={i} value={col.name}>{col.name}</option>)}
+                    </select>
+                  </div>
+
+                    {/* Condition pour générer  le graphique */}
+                   {fileObj.selectedX && fileObj.selectedY ?(
+                      <div style={{ height: '400px', marginTop: '20px' }}>
+                        <Bar data={data} options={{ maintainAspectRatio: false }} />
+                      </div>
+                    ): (
+                      <p style={{ color: '#666', marginTop: '20px' }}>
+                        💡 Sélectionnez un axe X et un axe Y pour générer le graphique.
+                    </p>
+                    )
+            
+                  }
+                </div>
+              )}
+             
+
+              {/* POUR AFFICHER LE TABLEAU*/}
+              <div style={{ overflowX: 'auto', marginTop: '20px' }}>
                 <table border="1" style={{ borderCollapse: 'collapse', width: '100%' }}>
                   <thead>
-                      <tr style={{background:"#f4f4f4"}}>
-
-                      {/* DEUXIEEME BOUCLE POUR L'ENTETE DES COLONNES DU HEAD  */}
-                        {fileObj.columns.map((col,i) =>(
-                          col.visible && <th key={i} style={{ padding: '10px' }}>{col.name}</th>
+                    <tr style={{ background: "#f4f4f4" }}>
+                      {fileObj.columns.map((col, i) => (
+                        col.visible && <th key={i} style={{ padding: '10px' }}>{col.name}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fileObj.rows.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {fileObj.columns.map((col, colIndex) => (
+                          col.visible && (
+                            <td key={colIndex} style={{ padding: '10px' }}>
+                              {row[col.name]}
+                            </td>
+                          )
                         ))}
                       </tr>
-                  </thead>
-
-                  <tbody>
-                        {/* BOUCLE SUR CHAQUE LIGNE DU FICHIER CSV*/}
-                        {fileObj.rows.map((row,rowIndex) =>(
-                          <tr key={rowIndex}>
-                            {/* POUR CHAQUE LIGNE ONT PARCOURS LES COLONNE ET ON AFFICHE LES VALEURS QUI CORRESPONDENT  */}
-                              {fileObj.columns.map((col,colIndex) =>(
-                                col.visible &&(
-                                <td key={colIndex} style={{ padding: '10px' }}>
-                                    {row[col.name]}
-                                </td>
-                                )
-                              ))}
-                          </tr>
-                        ))}
+                    ))}
                   </tbody>
-
                 </table>
+              </div>
             </div>
-
-          </div>
-        ))}
+          );
+        })}
      </div>
     </>
   )
