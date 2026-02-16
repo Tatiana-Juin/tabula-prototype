@@ -5,7 +5,7 @@ export default function FileEntry({file}) {
   return (
     <div>
         {/* Pour afficher le nom des fichier  */}
-        <h1>{file.name}</h1>
+        <h2 style={{ color: "#333" }}>Fichier : {file.name}</h2>
     </div>
   )
 }
