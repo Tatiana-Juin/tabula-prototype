@@ -26,10 +26,9 @@ ChartJS.register(
   Legend
 );
 function App() {
-  // tableau qui contient les données de chaque files 
-
+  // tableau qui contient tous les fichier importer 
   const [filesList,setFilesList] = useState([]);
-  // on créer une reference
+  // permet de créer une référencement vers un élément HTML ici input file - réinitialise input plus tard 
   const fileInputRef = useRef(null); 
   /*
     STRCUTURE ATTENTDU 
@@ -50,13 +49,13 @@ function App() {
     const files = Array.from(e.target.files);
     // Boucle pour recuperer les donnes
     files.forEach((file) => {
-      // lit le fichier 
+      // lit le fichier et le transforme en tableau JS 
       Papa.parse(file, {
         // 1er ligne header
         header: true,
         // ignore les ligne vides
         skipEmptyLines: true,
-        // Quand le traitement ou plutot papaParse est fini 
+        // Quand le traitement ou plutot parsing est fini  
         complete: (results) => {
           if (results.data.length > 0) {
             // Chaque colonnes et transformer en objet ainsi on poura recuperer le nom et faire switcher ca visibilité de true a false ou de false a true
@@ -64,7 +63,7 @@ function App() {
                 name: colName,
                 visible: true 
             }));
-            //On créer un objet pour chaque fichier precis 
+            //On créer un objet pour CHAQUE  fichier precis 
             const newFileEntry={
               id:Math.random().toString(36),
               name:file.name,
@@ -75,7 +74,7 @@ function App() {
               selectedX:"",
               selectedY:""
             } 
-            // spread operator pour ajouter le nouveau fichier et ne pas ecraser les autre fichier 
+            // spread operator pour ajouter le nouveau fichier et ne pas ecraser les autre fichier Immutable update pattern (très important en React)
             setFilesList((prev) => [...prev,newFileEntry]);
           }
         },
@@ -83,7 +82,7 @@ function App() {
     });
   }
 
-  // Pour le toggle 
+  // POUR LE SYSTEME DE FILTRE  
   const toggleColumn = (fileId,colName) =>{
     // fileId => identifiant unique du fichier CSV => pour pas modifier tout les tableaux en meme temps 
     //colName =>  nom de la colonnes
@@ -97,7 +96,7 @@ function App() {
             ...file,
             //parcours les colonnes 
             columns:file.columns.map(col=>
-              // si le nom de la colonnest est celui qu'on cherche on va modifier la valeurs de visible sinon on retourne la collonne sans changement
+              // si le nom de la colonnest est celui qu'on cherche on va modifier la valeurs de visible sinon on retourne la collonne sans changement state immutable propre
               col.name ===colName ? {...col,visible: !col.visible} :col
             )
           }
@@ -188,9 +187,9 @@ function App() {
 
 
         )}
-    {/* BOUCLE SUR CHAQUE FICHIER CHARGER - fileObj => un fichier csv  */}
+    {/* BOUCLE SUR CHAQUE FICHIER CHARGER - fileObj => un fichier csv - affiche dynamiquement les valeurs  */}
         {filesList.map((fileObj) => {
-          // --- LOGIQUE DE CALCUL (AVANT LE RETURN) POUR QUE Y soit UN NB ---
+          // --- logique on verifie si ce n'est pas vide si c'est une valeur numérique si c'est convertible en float
           const validRows = fileObj.rows.filter(row => {
             const valY = row[fileObj.selectedY];
             return valY !== undefined && valY.trim() !== "" && !isNaN(parseFloat(valY));
