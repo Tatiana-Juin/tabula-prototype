@@ -1,6 +1,6 @@
 
 import DataTable from "./DataTable"
-import ClearData from "./ClearData"
+
 export default function FileEntry({file}) {
     
   return (
