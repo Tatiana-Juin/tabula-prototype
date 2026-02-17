@@ -24,10 +24,7 @@ function App() {
           <FileUpload setFilesList={setFilesList} fileInputRef={fileInputRef} />
             {/* Boucle sur tout les fichier sur tout le tableau qui contient tout les fichier pour les afficher dans une table différentes  */}
             {filesList.map((file) =>(
-              <div key={file.id} className="file-container" >
-                  <FileEntry file={file} />
-                  <DataTable rows={file.rows} columns={file.columns} />
-              </div>
+                  <FileEntry key={file.id} file={file} />
             ))}
 
           
