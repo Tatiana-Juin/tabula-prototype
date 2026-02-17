@@ -22,7 +22,7 @@ function App() {
 
             <ClearData setFilesList={setFilesList} filesList={filesList} fileInputRef={fileInputRef} />
             {filesList.map((file) =>(
-                  <FileEntry key={file.id} file={file} />
+                  <FileEntry key={file.id} file={file} setFilesList={setFilesList}/>
             ))}
 
           
