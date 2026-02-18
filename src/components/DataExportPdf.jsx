@@ -31,8 +31,27 @@ export default function DataExportPdf({printRef,filesList}) {
         const imgHeightInPdf = actualPdfWidth / ratio;
 
         // Ajout de l'image 
-        pdf.addImage(imgData,'PNG',margin,margin,actualPdfWidth,imgHeightInPdf);
-        pdf.save("export-donnees.pdf");
+        // pdf.addImage(imgData,'PNG',margin,margin,actualPdfWidth,imgHeightInPdf);
+        // pdf.save("export-donnees.pdf");
+        let heightLeft = imgHeightInPdf;
+        let position = 0;
+        // POUR CREER LES PAGE AUTOMATIQUE 
+        // Ajout de la premiere page 
+        pdf.addImage(imgData,"PNG",margin,margin,actualPdfWidth,imgHeightInPdf);
+        heightLeft -= pdfHeight;
+        while(heightLeft > 0){
+            position = heightLeft - imgHeightInPdf;
+
+            // créeer une nouvelle page
+            pdf.addPage();
+            // /ajoute la suite de l'image a cette nouvelle page 
+            pdf.addImage(imgData,'PNG',margin, position + margin, actualPdfWidth,imgHeightInPdf);
+            heightLeft -= pdfHeight;
+        }
+
+        // on sauvegarde le document 
+        pdf.save("export-donnees.pdf")
+
     }
 
     // pour ne pas afficher le bouton exporter s'il a aucun fichier 
