@@ -30,9 +30,7 @@ export default function DataExportPdf({printRef,filesList}) {
         const actualPdfWidth = pdfWidth - (margin * 2);
         const imgHeightInPdf = actualPdfWidth / ratio;
 
-        // Ajout de l'image 
-        // pdf.addImage(imgData,'PNG',margin,margin,actualPdfWidth,imgHeightInPdf);
-        // pdf.save("export-donnees.pdf");
+        
         let heightLeft = imgHeightInPdf;
         let position = 0;
         // POUR CREER LES PAGE AUTOMATIQUE 
