@@ -1,4 +1,27 @@
-
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar, Line } from 'react-chartjs-2';
+// import './App.css'
+// On enregistre les composants pour les utiliser on fait cela pour que ca soit plus leger et on utilise que ce que l'on a besoin 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function ChartData({file,setFilesList}) {
 
@@ -27,6 +50,24 @@ export default function ChartData({file,setFilesList}) {
             })
         )
     }
+
+    const canShowChart = file.selectedX && file.selectedY;
+    const chartData = canShowChart ? {
+        labels: file.rows.map(row => row[file.selectedX]),
+        datasets: [
+      {
+        label: file.selectedY,
+        // On transforme le texte du CSV en vrai nombre 🔢
+        data: file.rows.map(row =>{
+            const value = row[file.selectedY];
+            return parseFloat(value.toString().replace(',', '.'));
+        }),
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1,
+      },
+    ],
+    } : null
   return (
     <>
          <div style={{ margin: '10px 0', padding: '10px', border: '1px solid #eee' }}>
@@ -67,7 +108,11 @@ export default function ChartData({file,setFilesList}) {
                         </select>
                     </div>
                    
-
+                    {canShowChart && (
+                        <div style={{ marginTop: '20px', height: '300px', background: 'white', padding: '10px' }}>
+                            <Bar data={chartData} />
+                        </div>
+                    )}
                 </div>
             )}
         </div>
